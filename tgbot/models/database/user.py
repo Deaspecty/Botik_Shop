@@ -1,3 +1,4 @@
+from typing import Sequence
 from sqlalchemy import BigInteger, Column, String, select, Date, DateTime, func, Integer, ForeignKey, Boolean
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,6 +27,16 @@ class User(Base):
         )
 
         return await session.scalar(stmt)
+
+    @classmethod
+    async def get_all_admins(
+            cls,
+            session: AsyncSession) -> Sequence['User']:
+        stmt = select(User).where(
+            User.is_admin == True
+        )
+        response = await session.execute(stmt)
+        return response.scalars().all()
 
     def get_mention(self, name=None):
         if name is None:

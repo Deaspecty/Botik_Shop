@@ -14,7 +14,7 @@ class LocaleManager:
 
     }
 
-    default_locale = 'ru'
+    default_locale = 'rus'
 
     @classmethod
     def add_locale(
@@ -50,11 +50,19 @@ class LocaleManager:
             locale_data
         )
 
-dict_text = {
-    Lang.RUS: {
+    @classmethod
+    def get(cls, text_ru: str, locale: str):
+        if text_ru is None:
+            return 'f'
+        text_ru = text_ru.strip()
 
-    },
-    Lang.UZB: {
+        if locale is None:
+            locale = cls.default_locale
 
-    }
-}
+        locale_data = cls.data.get(locale)
+
+        if (text_en := locale_data.get(text_ru)) is None:
+            logging.info(f"Перевода текста не был найден :( - ")
+            return text_ru
+
+        return text_en

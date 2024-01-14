@@ -9,6 +9,8 @@ from sqlalchemy.engine import URL
 
 from tgbot.models.database.base import Database
 from tgbot.data.config import load_config
+from tgbot.data.directories import DIRECTORY_TGBOT_DATA
+from tgbot.data.locale import LocaleManager, Lang
 from tgbot.filters.auth import AuthFilter
 from tgbot.filters.admin import AdminFilter
 from tgbot.middlewares.db import DbMiddleware
@@ -22,11 +24,12 @@ def register_all_middlewares(dp):
 
 
 def register_all_filters(dp):
-    #dp.filters_factory.bind(AdminFilter)
+    dp.filters_factory.bind(AdminFilter)
     dp.filters_factory.bind(AuthFilter)
 
 
 def register_all_handlers(dp):
+    handlers.register.register_admin(dp)
     handlers.register.register_client(dp)
     handlers.user.register.register_client_function(dp)
 
@@ -70,6 +73,17 @@ async def main():
     bot['pool'] = db.pool
 
     bot['redis'] = redis
+
+    LocaleManager.add_locale(
+        DIRECTORY_TGBOT_DATA / 'locales' / 'local.xlsx',
+        col_locale=1,
+        locale_name=Lang.RUS
+    )
+    LocaleManager.add_locale(
+        DIRECTORY_TGBOT_DATA / 'locales' / 'local.xlsx',
+        col_locale=2,
+        locale_name=Lang.UZB
+    )
 
     register_all_middlewares(dp)
     register_all_filters(dp)

@@ -19,4 +19,4 @@ class Order(StatesGroup):
 
 class ShopCart(StatesGroup):
     wait_product = State()
-    wait_order = State()
+    wait_file = State()
