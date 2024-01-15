@@ -1,5 +1,5 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from aiogram.types.message import Message, ContentTypes
+from aiogram.types.message import Message, ContentTypes, ParseMode
 from aiogram.types.callback_query import CallbackQuery
 from aiogram.dispatcher.storage import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +8,7 @@ from tgbot.data.locale import LocaleManager
 from tgbot.models.database.user import User
 from tgbot.models.database.order import Order, OrderItem
 from tgbot.handlers.user.start import start_handler
+from tgbot.handlers.auth import phone_handler
 from tgbot.keyboards.query_cb import ReceiptCallback, BackCallback
 from tgbot.keyboards.user.main import user_main_btns, get_shop_cart_btns, get_back_btns
 from tgbot.misc.notification.notification_for_admin import generate_admin_notification
@@ -15,6 +16,7 @@ from tgbot.misc.generate_order import show_order
 from tgbot.misc.show_product import show_product_function
 from tgbot.misc.states.user import ShopCart, UserState
 from tgbot.misc.delete import remove
+from tgbot.misc.parse import parse_phone
 
 
 async def shop_cart_handler(
@@ -26,6 +28,7 @@ async def shop_cart_handler(
     data = await state.get_data()
     products = []
     counts = []
+    loc = data.get('loc_cart')
     if data.get('shop_cart') is not None:
         for i in data.get('shop_cart').items():
             if i[1]:
@@ -36,7 +39,8 @@ async def shop_cart_handler(
         session=session,
         shop_cart=products,
         counts=counts,
-        lang=user.lang
+        lang=user.lang,
+        loc=int(loc) if loc is not None else 0
     )
     await remove(message, 1)
     await message.delete()
@@ -87,6 +91,10 @@ async def remove_product_cart_handler(
     data = await state.get_data()
     data['shop_cart'].pop(product_id)
     await state.update_data(shop_cart=data['shop_cart'])
+    loc = data.get('loc_cart')
+    if loc is not None:
+        loc = 0 if loc > len(data['shop_cart'].keys()) - 1 else loc
+    await state.update_data(loc_cart=loc)
     await shop_cart_handler(message=callback.message,
                             session=session,
                             state=state,
@@ -98,8 +106,10 @@ async def purchase_shop_cart_handler(
         session: AsyncSession,
         user: User,
         callback_data: dict,
+        state: FSMContext
 ):
-    shop_cart = callback_data.get('shop_cart')
+    data = await state.get_data()
+    #shop_cart = callback_data.get('shop_cart')
     markup = InlineKeyboardMarkup()
     markup.add(InlineKeyboardButton(
         text=LocaleManager.get("Прикрепить чек", user.lang),
@@ -124,8 +134,9 @@ async def purchase_shop_cart_handler(
     ))
 
     await callback.message.edit_text(
-        text=await show_order(session=session, shop_cart=eval(shop_cart), user=user),
-        reply_markup=markup
+        text=await show_order(session=session, shop_cart=data.get('shop_cart'), user=user),
+        reply_markup=markup,
+        parse_mode=ParseMode.HTML
     )
 
 
@@ -133,13 +144,40 @@ async def send_receipt_handler(
         callback: CallbackQuery,
         session: AsyncSession,
         user: User,
-        callback_data: dict,
         state: FSMContext
 ):
     await callback.message.delete()
+    if user.phone_number:
+        markup = await get_back_btns(user.lang)
+        msg = await callback.message.answer(
+            text=LocaleManager.get("Скиньте скриншот чека или pdf", user.lang),
+            reply_markup=markup
+        )
+        await state.update_data(msg=msg.message_id)
+        await ShopCart.wait_file.set()
+    else:
+        await phone_handler(m=callback.message,
+                            user=user,
+                            state=ShopCart.wait_phone)
+
+
+async def save_phone_handler(
+        message: Message,
+        session: AsyncSession,
+        user: User,
+        state: FSMContext
+):
+    data = await state.get_data()
+
+    phone_number = parse_phone(message.contact.phone_number)
+    user.phone_number = phone_number
+    await user.save(session)
 
     markup = await get_back_btns(user.lang)
-    msg = await callback.message.answer(
+    await remove(message, 1)
+    await remove(message, 2)
+    #await message.bot.delete_message(message.from_user.id, data['msg'])
+    msg = await message.answer(
         text=LocaleManager.get("Скиньте скриншот чека или pdf", user.lang),
         reply_markup=markup
     )

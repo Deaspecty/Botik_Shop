@@ -20,3 +20,8 @@ class Order(StatesGroup):
 class ShopCart(StatesGroup):
     wait_product = State()
     wait_file = State()
+    wait_phone = State()
+
+
+class Locale(StatesGroup):
+    wait_user = State()

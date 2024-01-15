@@ -25,7 +25,8 @@ async def back_handler(
         return await choose_product_handler(
             message=callback.message,
             session=session,
-            user=user
+            user=user,
+            state=state
         )
     else:
         return await shop_cart_handler(

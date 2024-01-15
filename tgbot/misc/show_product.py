@@ -30,12 +30,17 @@ async def show_product_function(
     if count < 0:
         count = 0
 
+    data['shop_cart'][product_id] = count
+    if count == 0 and data.get('shop_cart').get(product_id) is not None:
+        data['shop_cart'].pop(product_id)
+
     btns, product = await get_product_btns(
         session=session,
         product_id=product_id,
         action=action,
         count=count,
-        lang=user.lang
+        lang=user.lang,
+        shop_cart=data.get('shop_cart')
     )
     text = f'''
 {LocaleManager.get('Название', user.lang)}: {LocaleManager.get(product.name, user.lang)}
@@ -52,7 +57,4 @@ async def show_product_function(
             await callback.message.edit_reply_markup(reply_markup=btns)
         except:
             pass
-    data['shop_cart'][product_id] = count
-    if count == 0 and data.get('shop_cart').get(product_id) is not None:
-        data['shop_cart'].pop(product_id)
     await state.update_data(shop_cart=data['shop_cart'])

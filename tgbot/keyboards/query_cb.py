@@ -37,3 +37,9 @@ PurchaseCallback = CallbackData(
 ReceiptCallback = CallbackData(
     'receipt', 'receipt', 'action'
 )
+
+
+NavigationCallback = CallbackData(
+    'navigation', 'by', 'turn', 'count', 'action'
+)
+

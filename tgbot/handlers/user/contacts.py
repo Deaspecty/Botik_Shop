@@ -11,7 +11,7 @@ from tgbot.models.database.user import User
 from tgbot.keyboards.query_cb import BackCallback
 
 
-async def faq_main_handler(
+async def contacts_main_handler(
         message: Message,
         session: AsyncSession,
         user: User,
@@ -27,6 +27,6 @@ async def faq_main_handler(
     ))
     await remove(message, 1)
     await message.delete()
-    await message.answer("Тут будет FAQ",
+    await message.answer("Тут будет Контакты",
                          reply_markup=markup)
     await UserState.wait_user.set()

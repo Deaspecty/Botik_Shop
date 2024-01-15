@@ -29,25 +29,32 @@ def register_client(dp: Dispatcher):
     )
 
     dp.register_message_handler(
-        user.auth.auth_phone_handler,
+        user.auth.auth_user_handler,
         state=AuthUser.wait_name
     )
 
-    dp.register_message_handler(
-        user.auth.auth_user_handler,
-        content_types=types.ContentType.CONTACT,
-        state=AuthUser.wait_phone
-    )
+    #dp.register_message_handler(
+    #    user.auth.auth_phone_handler,
+    #    state=AuthUser.wait_name
+    #)
+
+    #dp.register_message_handler(
+    #    user.auth.auth_user_handler,
+    #    content_types=types.ContentType.CONTACT,
+    #    state=AuthUser.wait_phone
+    #)
 
     dp.register_message_handler(
-        auth.auth_user_handler,
+        #auth.auth_user_handler,
+        user.start.start_handler,
         commands=['start'],
         is_auth=True,
         state='*'
     )
 
-    dp.register_message_handler(
-        user.start.start_handler,
-        content_types=types.ContentType.CONTACT,
-        state=UserState.wait_user
-    )
+    #dp.register_message_handler(
+    #    user.start.start_handler,
+    #    content_types=types.ContentType.CONTACT,
+    #    state=UserState.wait_user
+    #)
+

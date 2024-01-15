@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from tgbot.data.locale import LocaleManager
 from tgbot.misc.states.user import AuthUser
-from tgbot.misc.parse import parse_phone
 from tgbot.models.database.user import User
 from tgbot.handlers.auth import phone_handler
 from tgbot.handlers.user.start import start_handler
@@ -58,12 +57,14 @@ async def auth_user_handler(
         user: User
 ):
     data = await state.get_data()
-    name = data.get('name')
+    name = message.text
     lang = data.get('lang')
-    phone_number = parse_phone(message.contact.phone_number)
+    await message.bot.delete_message(message.from_user.id, data['msg'])
+    await message.bot.delete_message(message.from_user.id, message.message_id)
+    #phone_number = parse_phone(message.contact.phone_number)
 
     user.name = name
-    user.phone_number = phone_number
+    #user.phone_number = phone_number
     user.lang = lang
     await user.save(session)
     await message.answer(LocaleManager.get("Вы успешно авторизовались.", user.lang))
