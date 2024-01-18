@@ -2,10 +2,11 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.filters import OrFilter
 
-from tgbot.misc.states.user import Order, ShopCart, Locale
+from tgbot.misc.states.user import Order, ShopCart, Locale, UserState, CoopState
 from tgbot.keyboards.query_cb import (QuantityCallback, ProductCallback,
                                       ShopCartCallback, BackCallback, PurchaseCallback,
-                                      ReceiptCallback, LanguageCallback, NavigationCallback)
+                                      ReceiptCallback, LanguageCallback, NavigationCallback,
+                                      FAQCallback, ConfirmCallback)
 from tgbot.handlers.user.catalog import (choose_product_handler,
                                          order_quantity_handler,
                                          get_shop_cart_handler)
@@ -13,11 +14,13 @@ from tgbot.handlers.user.cart import (shop_cart_handler, shop_cart_quantity_hand
                                       purchase_shop_cart_handler, get_picture_or_pdf_handler,
                                       clear_shop_cart_handler, send_receipt_handler,
                                       remove_product_cart_handler, save_phone_handler)
-from tgbot.handlers.user.faq import faq_main_handler
+from tgbot.handlers.user.faq import faq_main_handler, get_faq_handler
+from tgbot.handlers.user.coop import get_questionnaire_handler, coop_main_handler, confirm_handler
 from tgbot.handlers.user.contacts import contacts_main_handler
 from tgbot.handlers.user.back import back_handler
 from tgbot.handlers.user.location import locale_main_handler, set_locale_handler
 from tgbot.handlers.user.navigation import navigation
+from tgbot.filters.text import TextKeyboardFilter
 
 
 def register_client_function(dp: Dispatcher):
@@ -27,12 +30,13 @@ def register_client_function(dp: Dispatcher):
     register_local_function(dp)
     register_contacts_function(dp)
     register_faq_function(dp)
+    register_coop_function(dp)
 
 
 def register_catalog_function(dp: Dispatcher):
     dp.register_message_handler(
         choose_product_handler,
-        text='Каталог',
+        TextKeyboardFilter(text=['Каталог']),
         state="*"
     )
 
@@ -70,7 +74,7 @@ def register_catalog_function(dp: Dispatcher):
 def register_cart_function(dp: Dispatcher):
     dp.register_message_handler(
         shop_cart_handler,
-        text='Корзина',
+        TextKeyboardFilter(text=['Корзина']),
         state="*"
     )
 
@@ -140,15 +144,40 @@ def register_back_function(dp: Dispatcher):
 def register_faq_function(dp: Dispatcher):
     dp.register_message_handler(
         faq_main_handler,
-        text='FAQ',
+        TextKeyboardFilter(text=['FAQ']),
         state="*"
+    )
+
+    dp.register_callback_query_handler(
+        get_faq_handler,
+        FAQCallback.filter(action="faq"),
+        state=UserState.wait_user
+    )
+
+
+def register_coop_function(dp: Dispatcher):
+    dp.register_message_handler(
+        coop_main_handler,
+        TextKeyboardFilter(text=['Сотрудничество']),
+        state="*"
+    )
+
+    dp.register_message_handler(
+        get_questionnaire_handler,
+        state=CoopState.wait_user
+    )
+
+    dp.register_callback_query_handler(
+        confirm_handler,
+        ConfirmCallback.filter(action="coop"),
+        state=CoopState.wait_user
     )
 
 
 def register_contacts_function(dp: Dispatcher):
     dp.register_message_handler(
         contacts_main_handler,
-        text='Контакты',
+        TextKeyboardFilter(text=['Контакты']),
         state="*"
     )
 
@@ -156,7 +185,7 @@ def register_contacts_function(dp: Dispatcher):
 def register_local_function(dp: Dispatcher):
     dp.register_message_handler(
         locale_main_handler,
-        text='Сменить язык',
+        TextKeyboardFilter(text=['Сменить язык']),
         state="*"
     )
 

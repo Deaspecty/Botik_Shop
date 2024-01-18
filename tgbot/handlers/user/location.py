@@ -20,7 +20,7 @@ async def locale_main_handler(
 ):
     await remove(message, 1)
     await message.delete()
-    btns = await get_lang_btns('lang_ch')
+    btns = await get_lang_btns('lang_ch', user.lang)
     btns.add(InlineKeyboardButton(
         text=f"⬅️{LocaleManager.get('Назад', user.lang)}",
         callback_data=BackCallback.new(
@@ -29,7 +29,7 @@ async def locale_main_handler(
         )
     ))
     await message.answer(
-        text="Выберите язык",
+        text=LocaleManager.get("Выберите язык", user.lang),
         reply_markup=btns
     )
     await Locale.wait_user.set()
@@ -37,11 +37,16 @@ async def locale_main_handler(
 
 async def set_locale_handler(
         callback: CallbackQuery,
-        state: FSMContext,
+        session: AsyncSession,
         user: User,
-        callback_data: dict
+        callback_data: dict,
+        state: FSMContext
 ):
+    lang = callback_data['lang']
+    user.lang = lang
+    await user.save(session)
     await callback.message.delete()
     await callback.message.answer(LocaleManager.get("Вы сменили язык", user.lang),
                                   reply_markup=user_main_btns(user.lang))
+
     await UserState.wait_user.set()

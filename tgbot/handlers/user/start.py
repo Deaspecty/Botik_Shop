@@ -13,10 +13,10 @@ async def start_handler(
 ):
     await remove(message, 1)
     text = '''Добро пожаловать в магазин нашей компании
-Для выбора продукции перейдите в Каталог в главном меню ниже ⬇️
+Для выбора продукции перейдите в Каталог в главном меню ниже
 '''
     await message.answer(
-        text=LocaleManager.get(text, user.lang),
+        text=LocaleManager.get(text, user.lang) + " ⬇️",
         reply_markup=user_main_btns(user.lang)
     )
     await UserState.wait_user.set()

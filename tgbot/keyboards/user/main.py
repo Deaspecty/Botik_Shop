@@ -31,7 +31,8 @@ def user_main_btns(lang):
             LocaleManager.get("Корзина", lang),
             LocaleManager.get("FAQ", lang),
             LocaleManager.get("Контакты", lang),
-            LocaleManager.get("Сменить язык", lang)]
+            LocaleManager.get("Сменить язык", lang),
+            LocaleManager.get("Сотрудничество", lang)]
     for btn in btns:
         markup.add(
             btn
@@ -209,12 +210,13 @@ async def get_shop_cart_btns(session: AsyncSession,
     ).get()
 
 
-async def get_lang_btns(action: str):
+async def get_lang_btns(action: str,
+                        lang: str = "rus"):
     markup = InlineKeyboardMarkup()
-    btns = {'Русский': LanguageCallback.new(
+    btns = {LocaleManager.get('Русский', lang): LanguageCallback.new(
         lang=Lang.RUS,
         action=action
-    ), 'Узбекский': LanguageCallback.new(
+    ), LocaleManager.get('Узбекский', lang): LanguageCallback.new(
         lang=Lang.UZB,
         action=action
     )}

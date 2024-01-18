@@ -222,7 +222,7 @@ async def get_picture_or_pdf_handler(
             text = await generate_admin_notification(
                 session=session,
                 shop_cart=shop_cart,
-                user=user,
+                user=admin,
             )
             await message.bot.send_document(chat_id=admin.id, document=file_id, caption=text)
     else:
@@ -231,7 +231,7 @@ async def get_picture_or_pdf_handler(
             text = await generate_admin_notification(
                 session=session,
                 shop_cart=shop_cart,
-                user=user,
+                user=admin,
             )
             await message.bot.send_photo(chat_id=admin.id, photo=file_id, caption=text)
 

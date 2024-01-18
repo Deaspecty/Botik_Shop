@@ -25,7 +25,7 @@ class TextKeyboardFilter(BoundFilter):
         if isinstance(self.text, str):
             self.text = [self.text]
 
-        locale_data = locale_manager.data.get(user.locale)
+        locale_data = locale_manager.data.get(user.lang)
         for text in self.text:
 
             for key, value in locale_data.items():

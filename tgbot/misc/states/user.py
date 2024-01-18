@@ -25,3 +25,7 @@ class ShopCart(StatesGroup):
 
 class Locale(StatesGroup):
     wait_user = State()
+
+
+class CoopState(StatesGroup):
+    wait_user = State()

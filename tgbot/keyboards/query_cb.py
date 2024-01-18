@@ -23,7 +23,11 @@ BackCallback = CallbackData(
 )
 
 FAQCallback = CallbackData(
-    'FAQ', 'FAQ_name', 'action'
+    'FAQ', 'id', 'action'
+)
+
+ConfirmCallback = CallbackData(
+    'confirm', 'answer', 'action'
 )
 
 LanguageCallback = CallbackData(

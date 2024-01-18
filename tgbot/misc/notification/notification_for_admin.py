@@ -20,7 +20,8 @@ async def generate_admin_notification(
         sum_product += product.price * shop_cart.get(str(product.id))
         #sum_product = [product.price * shop_cart.get(str(product.id)) for product in products]
         info_products.append(f"{shop_cart.get(str(product.id))} x {LocaleManager.get(product.name, user.lang)} "
-                             f"{product.price * shop_cart.get(str(product.id))} тг\n")
+                             f"{product.price * shop_cart.get(str(product.id))} "
+                             f"{LocaleManager.get('сум', user.lang)}\n")
 
     text = f'''
 {LocaleManager.get('Новый заказ!', user.lang)}
@@ -30,6 +31,18 @@ async def generate_admin_notification(
 {LocaleManager.get('Заказ', user.lang)}:
 {"".join(info_products)} 
 
-{LocaleManager.get('Итого', user.lang)}: {sum_product} ₸
+{LocaleManager.get('Итого', user.lang)}: {sum_product} {LocaleManager.get('сум', user.lang)}
 '''
     return text
+
+
+async def send_questionnaire(
+        session: AsyncSession,
+        bot: Bot,
+        text: str
+):
+    admins = await User.get_all_admins(session)
+    for admin in admins:
+        await bot.send_message(
+            admin.id,
+            LocaleManager.get("Пришло новое обращение по сотрудничеству!", admin.lang) + "\n" + text)
