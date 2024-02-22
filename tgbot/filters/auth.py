@@ -16,9 +16,9 @@ class AuthFilter(BoundFilter):
         data = ctx_data.get()
         user: User = data.get('user')
 
-        if not user.name and not self.is_auth:
+        if not user.region and not self.is_auth:
             return True
 
-        if user.name and self.is_auth:
+        if user.region and self.is_auth:
             return True
 

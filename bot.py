@@ -84,6 +84,11 @@ async def main():
         col_locale=2,
         locale_name=Lang.UZB
     )
+    LocaleManager.add_locale(
+        DIRECTORY_TGBOT_DATA / 'locales' / 'local.xlsx',
+        col_locale=3,
+        locale_name=Lang.KAZ
+    )
 
     register_all_middlewares(dp)
     register_all_filters(dp)

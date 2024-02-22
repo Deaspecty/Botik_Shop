@@ -7,7 +7,7 @@ from tgbot.keyboards import generate
 from tgbot.keyboards.query_cb import (ProductCallback, BackCallback,
                                       LanguageCallback, QuantityCallback,
                                       ShopCartCallback, PurchaseCallback,
-                                      NavigationCallback)
+                                      NavigationCallback, CategoryCallback)
 from tgbot.data.locale import Lang
 
 
@@ -17,7 +17,7 @@ def phone_number_btn(lang):
         resize_keyboard=True
     )
     markup.add(
-        KeyboardButton(LocaleManager.get("Поделиться телефоном", lang), request_contact=True)
+        KeyboardButton(LocaleManager.get("Поделиться номером", lang), request_contact=True)
     )
     return markup
 
@@ -28,16 +28,48 @@ def user_main_btns(lang):
         resize_keyboard=True
     )
     btns = [LocaleManager.get("Каталог", lang),
+            LocaleManager.get("Купить на маркетплейсе", lang),
             LocaleManager.get("Корзина", lang),
             LocaleManager.get("FAQ", lang),
             LocaleManager.get("Контакты", lang),
-            LocaleManager.get("Сменить язык", lang),
+            LocaleManager.get("Сменить язык", lang) + " 🇰🇿🇷🇺🇺🇿",
+            LocaleManager.get("Сменить локацию", lang) + " 🇰🇿🇷🇺🇺🇿",
             LocaleManager.get("Сотрудничество", lang)]
     for btn in btns:
         markup.add(
             btn
         )
 
+    return markup
+
+
+async def get_marketplace(lang, region):
+    markup = InlineKeyboardMarkup()
+
+    btn1 = InlineKeyboardButton('Kaspi', url='https://kaspi.kz/shop/info/merchant/17508832/address-tab/?merchantId=17508832&ref=shared_lin')
+    btn2 = InlineKeyboardButton('Ozone', url='https://ozon.ru/t/byp0L6q')
+    btn3 = InlineKeyboardButton(LocaleManager.get("Wildberries (скоро)", lang),
+                                callback_data="test")
+    btn4 = InlineKeyboardButton(LocaleManager.get("Я.Маркет (скоро)", lang),
+                                callback_data="test")
+    btn5 = InlineKeyboardButton(LocaleManager.get("Uzum (скоро)", lang),
+                                callback_data="test")
+    btn6 = InlineKeyboardButton(
+        text="⬅️" + LocaleManager.get("Назад", lang),
+        callback_data=BackCallback.new(
+            level=0,
+            action="back"
+        )
+    )
+    if region == 'Kazakhstan':
+        markup.add(btn1)
+    markup.add(btn2)
+    markup.add(btn3)
+    if region == 'Russia':
+        markup.add(btn4)
+    if region == 'Uzbekistan':
+        markup.add(btn5)
+    markup.add(btn6)
     return markup
 
 
@@ -66,9 +98,6 @@ async def get_product_btns(session: AsyncSession,
         turn=1,
         product_id=product_id,
         action=action
-    ), f'⬅️{LocaleManager.get("Назад", lang)}': BackCallback.new(
-        level=f"1_{action}",
-        action="back"
     )
         #, f'⬅️{LocaleManager.get("Назад на главную", lang)}': BackCallback.new(
         #level=0,
@@ -81,6 +110,10 @@ async def get_product_btns(session: AsyncSession,
             product_id='-',
             action="shop_cart"
         )
+    btns[f'⬅️{LocaleManager.get("Назад", lang)}'] = BackCallback.new(
+        level=f"1_{action}",
+        action="back"
+    )
     order_btns = generate.GenerateMarkupButtons(
         laylout=laylout,
         markup=markup,
@@ -94,22 +127,73 @@ async def get_product_btns(session: AsyncSession,
     return order_btns, product
 
 
+async def get_category(
+        session: AsyncSession,
+        lang: str,
+        shop_cart: dict
+):
+    markup = InlineKeyboardMarkup()
+    btns = {LocaleManager.get("Ederra Lab 01 шампунь", lang): CategoryCallback.new(
+        category_sub="Ederra Lab 01 шампунь",
+        action="category"
+    ), "Ederra Lab 01 Sulfate Free": CategoryCallback.new(
+        category_sub="Sulfate Free",
+        action="category"
+    ), "Ederra Lab 02 Moisture": CategoryCallback.new(
+        category_sub="02 Moisture",
+        action="category"
+    )}
+    products = await get_all_products(session)
+    for i, product in enumerate(products):
+        if i == 5:
+            break
+        if "Ederra Lab 03" in product.name:
+            btns[LocaleManager.get(product.name, lang)] = ProductCallback.new(
+                product_id=product.id,
+                action="product"
+            )
+    if shop_cart:
+        btns[f'🛒{LocaleManager.get("Корзина", lang)}'] = QuantityCallback.new(
+            turn='-',
+            product_id='-',
+            action="shop_cart"
+        )
+    btns[f'⬅️{LocaleManager.get("Назад", lang)}'] = BackCallback.new(
+        level=0,
+        action="back"
+    )
+
+    return generate.GenerateMarkupButtons(
+        laylout=1,
+        markup=markup,
+        keyboards=[
+            InlineKeyboardButton(
+                text=t,
+                callback_data=c
+            ) for t, c in btns.items()
+        ]
+    ).get()
+
+
 async def get_products_btns(session: AsyncSession,
                             lang: str,
                             shop_cart: dict,
-                            loc: int):
+                            loc: int,
+                            sub_str: str):
     markup = InlineKeyboardMarkup()
     products = await get_all_products(session)
     btns = {}
     layout = []
-    for i, product in enumerate(products[loc:]):
-        if i == 5:
-            break
-        btns[LocaleManager.get(product.name, lang)] = ProductCallback.new(
-            product_id=product.id,
-            action="product"
-        )
-        layout += [1]
+    #products[loc:]
+    for i, product in enumerate(products):
+        #if i == 5:
+        #    break
+        if sub_str.lower() in product.name.lower():
+            btns[LocaleManager.get(product.name, lang)] = ProductCallback.new(
+                product_id=product.id,
+                action="product"
+            )
+            layout += [1]
     if shop_cart:
         btns[f'🛒{LocaleManager.get("Корзина", lang)}'] = ProductCallback.new(
             product_id="-",
@@ -117,7 +201,7 @@ async def get_products_btns(session: AsyncSession,
         )
         layout += [1]
 
-    if len(products) > 5:
+    if len(layout) > 5:
         btns["⬅️"] = NavigationCallback.new(
             by="orders",
             turn=loc - 5,
@@ -132,7 +216,7 @@ async def get_products_btns(session: AsyncSession,
         )
         layout += [2]
     btns[f'⬅️{LocaleManager.get("Назад", lang)}'] = BackCallback.new(
-            level=0,
+            level="category",
             action="back"
     )
     layout += [1]
@@ -213,10 +297,13 @@ async def get_shop_cart_btns(session: AsyncSession,
 async def get_lang_btns(action: str,
                         lang: str = "rus"):
     markup = InlineKeyboardMarkup()
-    btns = {LocaleManager.get('Русский', lang): LanguageCallback.new(
+    btns = {'Қазақша' + " 🇰🇿": LanguageCallback.new(
+        lang=Lang.KAZ,
+        action=action
+    ), 'Русский' + " 🇷🇺": LanguageCallback.new(
         lang=Lang.RUS,
         action=action
-    ), LocaleManager.get('Узбекский', lang): LanguageCallback.new(
+    ), "O'zbek" + " 🇺🇿": LanguageCallback.new(
         lang=Lang.UZB,
         action=action
     )}
@@ -250,3 +337,30 @@ async def get_back_btns(lang: str):
         )
     ))
     return markup
+
+
+async def region_btns(action: str,
+                      lang: str = "rus"):
+    markup = InlineKeyboardMarkup()
+    btns = {LocaleManager.get('Казахстан', lang) + " 🇰🇿": LanguageCallback.new(
+        lang="Kazakhstan",
+        action=action
+    ), LocaleManager.get('Россия', lang) + " 🇷🇺": LanguageCallback.new(
+        lang="Russia",
+        action=action
+    ), LocaleManager.get('Узбекистан', lang) + "🇺🇿": LanguageCallback.new(
+        lang="Uzbekistan",
+        action=action
+    )}
+
+    return generate.GenerateMarkupButtons(
+        laylout=1,
+        markup=markup,
+        keyboards=[
+            InlineKeyboardButton(
+                text=t,
+                callback_data=c
+            ) for t, c in btns.items()
+        ]
+    ).get()
+

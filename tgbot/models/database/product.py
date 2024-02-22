@@ -1,3 +1,4 @@
+import asyncio
 from typing import Sequence
 
 from sqlalchemy import (BigInteger, Column, String, select,
@@ -56,6 +57,6 @@ async def get_all_products_by_id(session: AsyncSession,
 async def get_product_by_id(session: AsyncSession,
                             product_id: int) -> Product:
     stmt = select(Product).where(Product.id == product_id)
-    response = await session.execute(stmt)
+    response = await asyncio.ensure_future(session.execute(stmt))
     return response.scalars().one()
 

@@ -13,13 +13,13 @@ async def phone_handler(
         state: State,
         state_date: FSMContext = None
 ):
-    text = "Поделитесь номером телефона для авторизации"
+    text = 'Для авторизации поделитесь, пожалуйста, номером телефона, нажав на кнопку "Поделиться номером" ниже'
     if not (lang := user.lang):
         data = await state_date.get_data()
         lang = data['lang']
 
     await m.answer(
-        text=LocaleManager.get(text, lang),
+        text=LocaleManager.get(text, lang) + " 👇🏻",
         reply_markup=phone_number_btn(lang)
     )
 

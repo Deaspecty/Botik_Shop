@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from tgbot.models.database.user import User
 from tgbot.handlers.user.start import start_handler
-from tgbot.handlers.user.catalog import choose_product_handler
+from tgbot.handlers.user.catalog import choose_product_handler, choose_category_handler
 from tgbot.handlers.user.cart import shop_cart_handler
 
 
@@ -20,9 +20,17 @@ async def back_handler(
     if level == '0':
         await callback.message.delete()
         return await start_handler(message=callback.message,
-                                   user=user)
+                                   user=user,
+                                   state=state)
     if 'order' in level:
-        return await choose_product_handler(
+        return await choose_category_handler(
+            message=callback.message,
+            session=session,
+            user=user,
+            state=state
+        )
+    elif 'category' in level:
+        return await choose_category_handler(
             message=callback.message,
             session=session,
             user=user,

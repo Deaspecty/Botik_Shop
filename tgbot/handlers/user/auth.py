@@ -8,7 +8,7 @@ from tgbot.misc.states.user import AuthUser
 from tgbot.models.database.user import User
 from tgbot.handlers.auth import phone_handler
 from tgbot.handlers.user.start import start_handler
-from tgbot.keyboards.user.main import get_lang_btns
+from tgbot.keyboards.user.main import get_lang_btns, region_btns
 
 
 async def auth_lang_handler(
@@ -16,12 +16,32 @@ async def auth_lang_handler(
         state: FSMContext
 ):
     msg = await message.answer(
-        text="Выберите язык",
+        text="Тілді таңдаңыз\n"
+             "Выберите язык\n"
+             "Tilni tanlang",
         reply_markup=await get_lang_btns('lang_auth')
     )
 
     await state.update_data(msg=msg.message_id)
     await AuthUser.wait_lang.set()
+
+
+async def auth_region_handler(
+        callback: CallbackQuery,
+        state: FSMContext,
+        user: User,
+        callback_data: dict
+):
+    await state.finish()
+    lang = callback_data['lang']
+    await state.update_data(lang=lang)
+    text = "Выберите ваш регион"
+    msg = await callback.message.edit_text(
+        text=LocaleManager.get(text, lang),
+        reply_markup=await region_btns("region", lang)
+    )
+    await state.update_data(msg=msg.message_id)
+    await AuthUser.wait_region.set()
 
 
 async def auth_name_handler(
@@ -51,6 +71,31 @@ async def auth_phone_handler(
 
 
 async def auth_user_handler(
+        callback: CallbackQuery,
+        state: FSMContext,
+        session: AsyncSession,
+        user: User,
+        callback_data: dict
+):
+    data = await state.get_data()
+    region = callback_data.get('lang')
+    lang = data.get('lang')
+    await callback.message.delete()
+    #await callback.bot.delete_message(callback.from_user.id, data['msg'])
+    #phone_number = parse_phone(message.contact.phone_number)
+
+    #user.name = name
+    #user.phone_number = phone_number
+    user.lang = lang
+    user.region = region
+    await user.save(session)
+    await callback.message.answer(LocaleManager.get("Вы успешно авторизовались.", user.lang))
+    await state.finish()
+    await start_handler(callback.message, user, state)
+
+
+'''
+async def auth_user_handler(
         message: Message,
         state: FSMContext,
         session: AsyncSession,
@@ -63,7 +108,7 @@ async def auth_user_handler(
     await message.bot.delete_message(message.from_user.id, message.message_id)
     #phone_number = parse_phone(message.contact.phone_number)
 
-    user.name = name
+    #user.name = name
     #user.phone_number = phone_number
     user.lang = lang
     await user.save(session)
@@ -71,3 +116,4 @@ async def auth_user_handler(
     await state.finish()
     await start_handler(message, user)
 
+'''

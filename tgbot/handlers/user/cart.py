@@ -5,7 +5,7 @@ from aiogram.dispatcher.storage import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from tgbot.data.locale import LocaleManager
-from tgbot.models.database.user import User
+from tgbot.models.database.user import User, Admin
 from tgbot.models.database.order import Order, OrderItem
 from tgbot.handlers.user.start import start_handler
 from tgbot.handlers.auth import phone_handler
@@ -42,6 +42,11 @@ async def shop_cart_handler(
         lang=user.lang,
         loc=int(loc) if loc is not None else 0
     )
+    #if data.get('msg_id_text'):
+    #    try:
+    #        await message.bot.delete_message(message.chat.id, data.get('msg_id_text'))
+    #    except:
+    #        pass
     await remove(message, 1)
     await message.delete()
     if products:
@@ -76,7 +81,8 @@ async def clear_shop_cart_handler(
     await state.finish()
     await start_handler(
         message=callback.message,
-        user=user
+        user=user,
+        state=state
     )
 
 
@@ -146,11 +152,18 @@ async def send_receipt_handler(
         user: User,
         state: FSMContext
 ):
+    data = await state.get_data()
     await callback.message.delete()
+    await remove(callback.message, 1)
+    #if data.get('msg_id_text'):
+    #    try:
+    #        await callback.message.bot.delete_message(callback.message.chat.id, data.get('msg_id_text'))
+    #    except:
+    #        pass
     if user.phone_number:
         markup = await get_back_btns(user.lang)
         msg = await callback.message.answer(
-            text=LocaleManager.get("Скиньте скриншот чека или pdf", user.lang),
+            text=LocaleManager.get("Отправьте скриншот чека или pdf", user.lang),
             reply_markup=markup
         )
         await state.update_data(msg=msg.message_id)
@@ -178,7 +191,30 @@ async def save_phone_handler(
     await remove(message, 2)
     #await message.bot.delete_message(message.from_user.id, data['msg'])
     msg = await message.answer(
-        text=LocaleManager.get("Скиньте скриншот чека или pdf", user.lang),
+        text=LocaleManager.get("Введите ваше имя", user.lang),
+        reply_markup=markup
+    )
+    await state.update_data(msg=msg.message_id)
+    await ShopCart.wait_name.set()
+
+
+async def save_name_handler(
+        message: Message,
+        session: AsyncSession,
+        user: User,
+        state: FSMContext
+):
+    data = await state.get_data()
+
+    user.name = message.text
+    await user.save(session)
+
+    markup = await get_back_btns(user.lang)
+    await remove(message, 1)
+    await remove(message, 2)
+    #await message.bot.delete_message(message.from_user.id, data['msg'])
+    msg = await message.answer(
+        text=LocaleManager.get("Отправьте скриншот чека или pdf", user.lang),
         reply_markup=markup
     )
     await state.update_data(msg=msg.message_id)
@@ -192,10 +228,10 @@ async def get_picture_or_pdf_handler(
         state: FSMContext
 ):
     data = await state.get_data()
-    shop_cart = data['shop_cart']
     await message.delete()
     await message.bot.delete_message(message.from_user.id, data['msg'])
-    admins = await User.get_all_admins(session)
+    #admins = await User.get_all_admins(session)
+
     markup = await get_back_btns(user.lang)
     if (message.content_type not in ContentTypes.PHOTO and
             message.content_type not in ContentTypes.DOCUMENT):
@@ -218,23 +254,68 @@ async def get_picture_or_pdf_handler(
             await state.update_data(msg=msg.message_id)
             return
         file_id = message.document.file_id
-        for admin in admins:
-            text = await generate_admin_notification(
-                session=session,
-                shop_cart=shop_cart,
-                user=admin,
-            )
-            await message.bot.send_document(chat_id=admin.id, document=file_id, caption=text)
+        await state.update_data(file_f="pdf")
+
     else:
         file_id = message.photo[-1].file_id
-        for admin in admins:
-            text = await generate_admin_notification(
-                session=session,
-                shop_cart=shop_cart,
-                user=admin,
-            )
-            await message.bot.send_photo(chat_id=admin.id, photo=file_id, caption=text)
+        await state.update_data(file_f="photo")
+    markup = InlineKeyboardMarkup()
+    markup.add(InlineKeyboardButton(
+        text=f"⬅️{LocaleManager.get('Назад на главную', user.lang)}",
+        callback_data=BackCallback.new(
+            level=0,
+            action="back"
+        )
+    ))
 
+    msg = await message.answer(
+        text=LocaleManager.get("Заполните информацию для доставки:", user.lang),
+        reply_markup=markup
+    )
+    await state.update_data(file_id=file_id)
+    await state.update_data(msg=msg.message_id)
+
+    await ShopCart.wait_info.set()
+
+
+async def get_info_handler(
+        message: Message,
+        session: AsyncSession,
+        user: User,
+        state: FSMContext
+):
+    data = await state.get_data()
+    admins = await Admin.get_admins(session)
+    shop_cart = data.get('shop_cart')
+    file_id = data.get('file_id')
+    file_f = data.get('file_f')
+    await message.delete()
+    await message.bot.delete_message(message.from_user.id, data['msg'])
+
+    if file_f == 'pdf':
+        for admin in admins:
+            if admin.region == user.region:
+                user_admin = await session.get(User, admin.tlg_id)
+                text = await generate_admin_notification(
+                    session=session,
+                    shop_cart=shop_cart,
+                    user=user,
+                    admin=user_admin
+                )
+                text += f'\n{LocaleManager.get("Сообщение от пользователя", user_admin.lang)}: \n{message.text}'
+                await message.bot.send_document(chat_id=admin.tlg_id, document=file_id, caption=text)
+    else:
+        for admin in admins:
+            if admin.region == user.region:
+                user_admin = await session.get(User, admin.tlg_id)
+                text = await generate_admin_notification(
+                    session=session,
+                    shop_cart=shop_cart,
+                    user=user,
+                    admin=user_admin
+                )
+                text += f'\n{LocaleManager.get("Сообщение от пользователя", user_admin.lang)}: \n{message.text}'
+                await message.bot.send_photo(chat_id=admin.tlg_id, photo=file_id, caption=text)
     order = Order(
         user_id=user.id
     )
@@ -250,6 +331,7 @@ async def get_picture_or_pdf_handler(
     await session.commit()
     await state.finish()
     await message.answer(
-        text=LocaleManager.get("Спасибо за покупку, скоро администратор примет вашу заявку", user.lang),
+        text=LocaleManager.get("Заказ принят и готовится к отправке", user.lang),
         reply_markup=user_main_btns(user.lang))
+
     await UserState.wait_user.set()

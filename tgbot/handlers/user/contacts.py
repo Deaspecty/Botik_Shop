@@ -27,6 +27,11 @@ async def contacts_main_handler(
     ))
     await remove(message, 1)
     await message.delete()
-    await message.answer("Тут будет Контакты",
-                         reply_markup=markup)
+    text = '''
+Свяжитесь с нами по этим номерам
+Казахстан и Россия: +77786873690
+Узбекистан: +998940044780'''
+    await message.answer(
+        text=LocaleManager.get(text, user.lang),
+        reply_markup=markup)
     await UserState.wait_user.set()

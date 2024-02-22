@@ -3,22 +3,19 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.filters import OrFilter
 
 from tgbot.misc.states.user import Order, ShopCart, Locale, UserState, CoopState
-from tgbot.keyboards.query_cb import (QuantityCallback, ProductCallback,
-                                      ShopCartCallback, BackCallback, PurchaseCallback,
-                                      ReceiptCallback, LanguageCallback, NavigationCallback,
-                                      FAQCallback, ConfirmCallback)
+from tgbot.keyboards import query_cb
 from tgbot.handlers.user.catalog import (choose_product_handler,
                                          order_quantity_handler,
-                                         get_shop_cart_handler)
-from tgbot.handlers.user.cart import (shop_cart_handler, shop_cart_quantity_handler,
-                                      purchase_shop_cart_handler, get_picture_or_pdf_handler,
-                                      clear_shop_cart_handler, send_receipt_handler,
-                                      remove_product_cart_handler, save_phone_handler)
+                                         get_shop_cart_handler,
+                                         choose_category_handler,
+                                         get_marketplace_handler)
+from tgbot.handlers.user import cart
 from tgbot.handlers.user.faq import faq_main_handler, get_faq_handler
 from tgbot.handlers.user.coop import get_questionnaire_handler, coop_main_handler, confirm_handler
 from tgbot.handlers.user.contacts import contacts_main_handler
 from tgbot.handlers.user.back import back_handler
-from tgbot.handlers.user.location import locale_main_handler, set_locale_handler
+from tgbot.handlers.user.location import (locale_main_handler, set_locale_handler,
+                                          set_region_handler, region_main_handler)
 from tgbot.handlers.user.navigation import navigation
 from tgbot.filters.text import TextKeyboardFilter
 
@@ -31,112 +28,138 @@ def register_client_function(dp: Dispatcher):
     register_contacts_function(dp)
     register_faq_function(dp)
     register_coop_function(dp)
+    register_market_function(dp)
+    register_location_function(dp)
+
+
+def register_market_function(dp: Dispatcher):
+    dp.register_message_handler(
+        get_marketplace_handler,
+        TextKeyboardFilter(text=['Купить на маркетплейсе']),
+        state="*"
+    )
 
 
 def register_catalog_function(dp: Dispatcher):
     dp.register_message_handler(
-        choose_product_handler,
+        choose_category_handler,
         TextKeyboardFilter(text=['Каталог']),
         state="*"
     )
 
     dp.register_callback_query_handler(
-        order_quantity_handler,
-        ProductCallback.filter(action="product"),
+        choose_product_handler,
+        query_cb.CategoryCallback.filter(action="category"),
         state=Order.wait_product
     )
 
     dp.register_callback_query_handler(
         order_quantity_handler,
-        QuantityCallback.filter(action="order"),
+        query_cb.ProductCallback.filter(action="product"),
+        state=Order.wait_product
+    )
+
+    dp.register_callback_query_handler(
+        order_quantity_handler,
+        query_cb.QuantityCallback.filter(action="order"),
         state=Order.wait_product
     )
 
     dp.register_callback_query_handler(
         get_shop_cart_handler,
-        ProductCallback.filter(action="shop_cart"),
+        query_cb.ProductCallback.filter(action="shop_cart"),
         state=Order.wait_product
     )
 
     dp.register_callback_query_handler(
         get_shop_cart_handler,
-        QuantityCallback.filter(action="shop_cart"),
+        query_cb.QuantityCallback.filter(action="shop_cart"),
         state=Order.wait_product
     )
 
     dp.register_callback_query_handler(
         navigation,
-        NavigationCallback.filter(action="navigation"),
+        query_cb.NavigationCallback.filter(action="navigation"),
         state="*"
     )
 
 
 def register_cart_function(dp: Dispatcher):
     dp.register_message_handler(
-        shop_cart_handler,
+        cart.shop_cart_handler,
         TextKeyboardFilter(text=['Корзина']),
         state="*"
     )
 
     dp.register_callback_query_handler(
-        shop_cart_quantity_handler,
-        ShopCartCallback.filter(action="product"),
+        cart.shop_cart_quantity_handler,
+        query_cb.ShopCartCallback.filter(action="product"),
         state=ShopCart.wait_product
     )
 
     dp.register_callback_query_handler(
         get_shop_cart_handler,
-        QuantityCallback.filter(action="shop_cart"),
+        query_cb.QuantityCallback.filter(action="shop_cart"),
         state=ShopCart.wait_product
     )
 
     dp.register_callback_query_handler(
-        shop_cart_quantity_handler,
-        QuantityCallback.filter(action="cart"),
+        cart.shop_cart_quantity_handler,
+        query_cb.QuantityCallback.filter(action="cart"),
         state=ShopCart.wait_product
     )
 
     dp.register_callback_query_handler(
-        purchase_shop_cart_handler,
-        PurchaseCallback.filter(action="purchase"),
+        cart.purchase_shop_cart_handler,
+        query_cb.PurchaseCallback.filter(action="purchase"),
         state=ShopCart.wait_product
     )
 
     dp.register_callback_query_handler(
-        clear_shop_cart_handler,
-        PurchaseCallback.filter(action="clear_cart"),
+        cart.clear_shop_cart_handler,
+        query_cb.PurchaseCallback.filter(action="clear_cart"),
         state=ShopCart.wait_product
     )
 
     dp.register_callback_query_handler(
-        remove_product_cart_handler,
-        PurchaseCallback.filter(action="remove"),
+        cart.remove_product_cart_handler,
+        query_cb.PurchaseCallback.filter(action="remove"),
         state=ShopCart.wait_product
     )
 
     dp.register_callback_query_handler(
-        send_receipt_handler,
-        ReceiptCallback.filter(action="receipt"),
+        cart.send_receipt_handler,
+        query_cb.ReceiptCallback.filter(action="receipt"),
         state=ShopCart.wait_product
     )
 
     dp.register_message_handler(
-        save_phone_handler,
+        cart.save_phone_handler,
         content_types=types.ContentType.CONTACT,
         state=ShopCart.wait_phone
     )
 
     dp.register_message_handler(
-        get_picture_or_pdf_handler,
+        cart.save_name_handler,
+        state=ShopCart.wait_name
+    )
+
+    dp.register_message_handler(
+        cart.get_picture_or_pdf_handler,
         content_types=types.ContentTypes.ANY,
         state=ShopCart.wait_file
+    )
+
+    dp.register_message_handler(
+        cart.get_info_handler,
+        state=ShopCart.wait_info
     )
 
 
 def register_back_function(dp: Dispatcher):
     dp.register_callback_query_handler(
         back_handler,
-        BackCallback.filter(action="back"),
+        query_cb.BackCallback.filter(action="back"),
         state="*"
     )
 
@@ -150,7 +173,7 @@ def register_faq_function(dp: Dispatcher):
 
     dp.register_callback_query_handler(
         get_faq_handler,
-        FAQCallback.filter(action="faq"),
+        query_cb.FAQCallback.filter(action="faq"),
         state=UserState.wait_user
     )
 
@@ -169,7 +192,7 @@ def register_coop_function(dp: Dispatcher):
 
     dp.register_callback_query_handler(
         confirm_handler,
-        ConfirmCallback.filter(action="coop"),
+        query_cb.ConfirmCallback.filter(action="coop"),
         state=CoopState.wait_user
     )
 
@@ -185,12 +208,26 @@ def register_contacts_function(dp: Dispatcher):
 def register_local_function(dp: Dispatcher):
     dp.register_message_handler(
         locale_main_handler,
-        TextKeyboardFilter(text=['Сменить язык']),
+        TextKeyboardFilter(text=['Сменить язык ' + "🇰🇿🇷🇺🇺🇿"]),
         state="*"
     )
 
     dp.register_callback_query_handler(
         set_locale_handler,
-        LanguageCallback.filter(action='lang_ch'),
+        query_cb.LanguageCallback.filter(action='lang_ch'),
+        state=Locale.wait_user
+    )
+
+
+def register_location_function(dp: Dispatcher):
+    dp.register_message_handler(
+        region_main_handler,
+        TextKeyboardFilter(text=['Сменить локацию ' + "🇰🇿🇷🇺🇺🇿"]),
+        state="*"
+    )
+
+    dp.register_callback_query_handler(
+        set_region_handler,
+        query_cb.LanguageCallback.filter(action='region_ch'),
         state=Locale.wait_user
     )

@@ -22,16 +22,23 @@ def register_client(dp: Dispatcher):
         is_auth=False,
         state="*"
     )
+
     dp.register_callback_query_handler(
-        user.auth.auth_name_handler,
+        user.auth.auth_region_handler,
         LanguageCallback.filter(action='lang_auth'),
         state=AuthUser.wait_lang
     )
 
-    dp.register_message_handler(
+    dp.register_callback_query_handler(
         user.auth.auth_user_handler,
-        state=AuthUser.wait_name
+        LanguageCallback.filter(action='region'),
+        state=AuthUser.wait_region
     )
+
+    #dp.register_message_handler(
+    #    user.auth.auth_user_handler,
+    #    state=AuthUser.wait_name
+    #)
 
     #dp.register_message_handler(
     #    user.auth.auth_phone_handler,

@@ -42,12 +42,17 @@ async def show_product_function(
         lang=user.lang,
         shop_cart=data.get('shop_cart')
     )
+    price = product.price
+    if user.region == 'Russia':
+        price = price * 0.0074
+    elif user.region == 'Kazakhstan':
+        price = price * 0.037
     text = f'''
 {LocaleManager.get('Название', user.lang)}: {LocaleManager.get(product.name, user.lang)}
 
 {LocaleManager.get('Описание', user.lang)}: {LocaleManager.get(product.description, user.lang)}
 
-{LocaleManager.get('Цена', user.lang)}: {product.price}
+{LocaleManager.get('Цена', user.lang)}: {int(price)}
     '''
     if callback_data.get('turn') is None:
         await callback.message.delete()

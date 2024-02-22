@@ -18,7 +18,8 @@ class TextKeyboardFilter(BoundFilter):
     async def check(self, m: Message) -> bool:
         locale_manager = LocaleManager
         m_answer = m.text
-
+        if "🇰🇿🇷🇺🇺🇿" in m_answer:
+            m_answer = m_answer.replace(" 🇰🇿🇷🇺🇺🇿", "")
         data = ctx_data.get()
         user: User = data.get('user')
 
@@ -27,7 +28,8 @@ class TextKeyboardFilter(BoundFilter):
 
         locale_data = locale_manager.data.get(user.lang)
         for text in self.text:
-
+            if "🇰🇿🇷🇺🇺🇿" in text:
+                text = text.replace(" 🇰🇿🇷🇺🇺🇿", "")
             for key, value in locale_data.items():
                 if not value:
                     key = value

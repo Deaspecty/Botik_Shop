@@ -47,3 +47,6 @@ NavigationCallback = CallbackData(
     'navigation', 'by', 'turn', 'count', 'action'
 )
 
+CategoryCallback = CallbackData(
+    'category', 'category_sub', 'action'
+)
