@@ -18,7 +18,7 @@ async def locale_main_handler(
         user: User,
         state: FSMContext
 ):
-    await remove(message, 1)
+    #await remove(message, 1)
     await message.delete()
     btns = await get_lang_btns('lang_ch', user.lang)
     btns.add(InlineKeyboardButton(
@@ -58,7 +58,7 @@ async def region_main_handler(
         user: User,
         state: FSMContext
 ):
-    await remove(message, 1)
+    #await remove(message, 1)
     await message.delete()
     btns = await region_btns('region_ch', user.lang)
     btns.add(InlineKeyboardButton(

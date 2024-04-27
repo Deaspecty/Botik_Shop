@@ -25,7 +25,7 @@ async def get_marketplace_handler(
         region=user.region
     )
     await message.delete()
-    await remove(message, 1)
+    #await remove(message, 1)
     if btns:
         await message.answer(
             text=LocaleManager.get("Магазина", user.lang),
@@ -46,7 +46,7 @@ async def choose_category_handler(
         shop_cart=data.get('shop_cart')
     )
     await message.delete()
-    await remove(message, 1)
+    #await remove(message, 1)
     if btns:
         await message.answer(
             text=LocaleManager.get("Выберите товар", user.lang),

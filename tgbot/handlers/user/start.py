@@ -19,12 +19,18 @@ async def start_handler(
             await message.bot.delete_message(message.chat.id, data.get('msg_id_text'))
         except:
             pass
+    if data.get('msg_start'):
+        try:
+            await message.bot.delete_message(message.chat.id, data.get('msg_start'))
+        except:
+            pass
     await remove(message, 1)
     text = '''Добро пожаловать в магазин нашей компании
 Для выбора продукции перейдите в Каталог в главном меню ниже
 '''
-    await message.answer(
+    msg_start = await message.answer(
         text=LocaleManager.get(text, user.lang) + " ⬇️",
         reply_markup=user_main_btns(user.lang)
     )
+    await state.update_data(msg_start=msg_start.message_id)
     await UserState.wait_user.set()

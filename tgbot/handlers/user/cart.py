@@ -47,7 +47,7 @@ async def shop_cart_handler(
     #        await message.bot.delete_message(message.chat.id, data.get('msg_id_text'))
     #    except:
     #        pass
-    await remove(message, 1)
+    #await remove(message, 1)
     await message.delete()
     if products:
         await message.answer(

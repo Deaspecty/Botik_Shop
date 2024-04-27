@@ -10,7 +10,6 @@ from tgbot.data.locale import LocaleManager
 
 class TextKeyboardFilter(BoundFilter):
 
-
     def __init__(self, text: typing.List[str], is_not=False):
         self.text = text
         self.is_not = is_not

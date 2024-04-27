@@ -28,7 +28,7 @@ async def coop_main_handler(
             action="back"
         )
     ))
-    await remove(message, 1)
+    #await remove(message, 1)
     await message.delete()
     text = '''Напишите ответы на вопросы ниже и отправьте одним сообщением в этот же чат:
 <i>Имя представителя</i>

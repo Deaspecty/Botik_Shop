@@ -27,7 +27,7 @@ async def faq_main_handler(
             action="back"
         )
     ))
-    await remove(message, 1)
+    #await remove(message, 1)
     await message.delete()
     await message.answer(LocaleManager.get('FAQ', user.lang),
                          reply_markup=markup)

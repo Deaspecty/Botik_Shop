@@ -25,7 +25,7 @@ async def contacts_main_handler(
             action="back"
         )
     ))
-    await remove(message, 1)
+    #await remove(message, 1)
     await message.delete()
     text = '''
 Свяжитесь с нами по этим номерам
