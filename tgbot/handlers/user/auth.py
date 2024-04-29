@@ -17,8 +17,7 @@ async def auth_lang_handler(
 ):
     msg = await message.answer(
         text="Тілді таңдаңыз\n"
-             "Выберите язык\n"
-             "Tilni tanlang",
+             "Выберите язык",
         reply_markup=await get_lang_btns('lang_auth')
     )
 
