@@ -44,9 +44,8 @@ async def show_product_function(
     )
     price = product.price
     if user.region == 'Russia':
-        price = price * 0.0074
-    elif user.region == 'Kazakhstan':
-        price = price * 0.037
+        price = price * 0.21
+
     text = f'''
 {LocaleManager.get('Название', user.lang)}: {LocaleManager.get(product.name, user.lang)}
 

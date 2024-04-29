@@ -16,11 +16,11 @@ async def show_order(
     info_products = []
     currency = "тг"
     link_pay = "https://pay.kaspi.kz/pay/zzkyicl2"
-    price = 0.037
+    price = 1
     if user.region == 'Russia':
         currency = '₽'
         link_pay = "https://www.google.kz/?hl=ru"
-        price = 0.0074
+        price = 0.21
     if user.region == 'Uzbekistan':
         currency = 'сум'
         link_pay = "https://www.google.kz/?hl=ru"
@@ -32,9 +32,16 @@ async def show_order(
                              f"{int(product.price * shop_cart.get(str(product.id)) * price)} "
                              f"{LocaleManager.get(currency, user.lang)}\n")
 
-    info = f'''
-- в городах Алматы, Астана, Шымкент, Караганда со склада Ederra осуществляется Яндекс курьером за счет покупателя согласно тарифу на момент отправки заказа;
-- в другие города Казахстана осуществляется ТК CDEK со склада в городе Алматы за счет покупателя согласно тарифу на момент отправки заказа.'''
+    info = f'''Способы доставки 
+Алматы по городу 
+Яндекс курьером согласно из тарифу за счет покупателя 
+Указать данные получателя 
+Имя 
+Адрес полный(адрес должен отображаться на карте Яндекс) 
+Телефон для связи
+
+в другие города мы отправляем через почту 
+Оплата за счет покупателя!'''
     if user.region == "Russia":
         info = f'''
 - в городе Москва со склада Ederra осуществляется Яндекс курьером за счет покупателя согласно тарифу на момент отправки заказа;

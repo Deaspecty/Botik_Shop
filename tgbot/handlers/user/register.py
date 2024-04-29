@@ -208,7 +208,7 @@ def register_contacts_function(dp: Dispatcher):
 def register_local_function(dp: Dispatcher):
     dp.register_message_handler(
         locale_main_handler,
-        TextKeyboardFilter(text=['Сменить язык ' + "🇰🇿🇷🇺🇺🇿"]),
+        TextKeyboardFilter(text=['Сменить язык ' + "🇰🇿🇷🇺"]),
         state="*"
     )
 
@@ -222,7 +222,7 @@ def register_local_function(dp: Dispatcher):
 def register_location_function(dp: Dispatcher):
     dp.register_message_handler(
         region_main_handler,
-        TextKeyboardFilter(text=['Сменить локацию ' + "🇰🇿🇷🇺🇺🇿"]),
+        TextKeyboardFilter(text=['Сменить локацию ' + "🇰🇿🇷🇺"]),
         state="*"
     )
 

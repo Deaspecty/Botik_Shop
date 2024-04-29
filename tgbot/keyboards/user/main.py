@@ -28,12 +28,12 @@ def user_main_btns(lang):
         resize_keyboard=True
     )
     btns = [LocaleManager.get("Каталог", lang),
-            LocaleManager.get("Купить на маркетплейсе", lang),
+            # LocaleManager.get("Купить на маркетплейсе", lang),
             LocaleManager.get("Корзина", lang),
-            LocaleManager.get("FAQ", lang),
+            # LocaleManager.get("FAQ", lang),
             LocaleManager.get("Контакты", lang),
-            LocaleManager.get("Сменить язык", lang) + " 🇰🇿🇷🇺🇺🇿",
-            LocaleManager.get("Сменить локацию", lang) + " 🇰🇿🇷🇺🇺🇿",
+            LocaleManager.get("Сменить язык", lang) + " 🇰🇿🇷🇺",
+            # LocaleManager.get("Сменить локацию", lang) + " 🇰🇿🇷🇺",
             LocaleManager.get("Сотрудничество", lang)]
     for btn in btns:
         markup.add(
@@ -133,16 +133,22 @@ async def get_category(
         shop_cart: dict
 ):
     markup = InlineKeyboardMarkup()
-    btns = {LocaleManager.get("Ederra Lab 01 шампунь", lang): CategoryCallback.new(
-        category_sub="Ederra Lab 01 шампунь",
+    btns = {LocaleManager.get("СУМКА ДЛЯ ТЕЛЕФОНА", lang): CategoryCallback.new(
+        category_sub="СУМКА ДЛЯ ТЕЛЕФОНА",
         action="category"
-    ), "Ederra Lab 01 Sulfate Free": CategoryCallback.new(
-        category_sub="Sulfate Free",
+    ), "Bvlgari": CategoryCallback.new(
+        category_sub="Bvlgari",
         action="category"
-    ), "Ederra Lab 02 Moisture": CategoryCallback.new(
-        category_sub="02 Moisture",
+    ), "Miu Miu": CategoryCallback.new(
+        category_sub="Miu Miu",
         action="category"
-    )}
+    ),LocaleManager.get("Сандали", lang): CategoryCallback.new(
+        category_sub="Сандали",
+        action="category"
+    ),LocaleManager.get("Кроссовки", lang): CategoryCallback.new(
+        category_sub="Кроссовки",
+        action="category"
+    ),}
     products = await get_all_products(session)
     for i, product in enumerate(products):
         if i == 5:
@@ -303,9 +309,6 @@ async def get_lang_btns(action: str,
     ), 'Русский' + " 🇷🇺": LanguageCallback.new(
         lang=Lang.RUS,
         action=action
-    ), "O'zbek" + " 🇺🇿": LanguageCallback.new(
-        lang=Lang.UZB,
-        action=action
     )}
 
     return generate.GenerateMarkupButtons(
@@ -347,9 +350,6 @@ async def region_btns(action: str,
         action=action
     ), LocaleManager.get('Россия', lang) + " 🇷🇺": LanguageCallback.new(
         lang="Russia",
-        action=action
-    ), LocaleManager.get('Узбекистан', lang) + "🇺🇿": LanguageCallback.new(
-        lang="Uzbekistan",
         action=action
     )}
 

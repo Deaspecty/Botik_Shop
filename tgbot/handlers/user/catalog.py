@@ -74,7 +74,10 @@ async def choose_product_handler(
         sub_str=sub_str
     )
     await remove(callback.message, 1)
-    await callback.message.delete()
+    try:
+        await callback.message.delete()
+    except Exception:
+        pass
     if btns:
         await callback.message.answer(
             text=LocaleManager.get("Выберите товар", user.lang),

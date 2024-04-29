@@ -43,13 +43,15 @@ async def main():
     logger.info("Starting bot")
     config = load_config(".env")
 
-    if config.tg_bot.use_redis:
-        storage = RedisStorage2(config.tg_bot.redis_host)
-    else:
-        storage = MemoryStorage()
-
     bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
     db = Database()
+
+    if config.tg_bot.use_redis:
+        storage = RedisStorage2(config.tg_bot.redis_host)
+        redis = await storage.redis()
+        bot['redis'] = redis
+    else:
+        storage = MemoryStorage()
 
     scheduler = AsyncIOScheduler(
          timezone='Asia/Aqtobe'
@@ -67,12 +69,9 @@ async def main():
     )
 
     dp = Dispatcher(bot, storage=storage)
-    redis = await storage.redis()
 
     bot['config'] = config
     bot['pool'] = db.pool
-
-    bot['redis'] = redis
 
     LocaleManager.add_locale(
         DIRECTORY_TGBOT_DATA / 'locales' / 'local.xlsx',

@@ -20,11 +20,11 @@ async def generate_admin_notification(
     sum_product = 0
     region = "Казахстан"
     currency = 'тг'
-    price = 0.037
+    price = 1
     if user.region == 'Russia':
         region = "Россия"
         currency = '₽'
-        price = 0.0074
+        price = 0.21
     if user.region == 'Uzbekistan':
         region = "Узбекистан"
         currency = 'сум'
