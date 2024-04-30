@@ -20,15 +20,6 @@ async def generate_admin_notification(
     sum_product = 0
     region = "Казахстан"
     currency = 'тг'
-    price = 1
-    if user.region == 'Russia':
-        region = "Россия"
-        currency = '₽'
-        price = 0.21
-    if user.region == 'Uzbekistan':
-        region = "Узбекистан"
-        currency = 'сум'
-        price = 1
     for product in products:
         sum_product += product.price * shop_cart.get(str(product.id))
         #sum_product = [product.price * shop_cart.get(str(product.id)) for product in products]
@@ -42,7 +33,7 @@ async def generate_admin_notification(
 {LocaleManager.get('Страна', admin.lang)}: {region}
 {LocaleManager.get('Заказ', admin.lang)}:
 {"".join(info_products)}
-{LocaleManager.get('Итого', admin.lang)}: {int(sum_product*price)} {LocaleManager.get(currency, admin.lang)}
+{LocaleManager.get('Итого', admin.lang)}: {int(sum_product)} {LocaleManager.get(currency, admin.lang)}
 '''
     return text
 

@@ -17,7 +17,7 @@ def register_admin(dp: Dispatcher):
 
 def register_client(dp: Dispatcher):
     dp.register_message_handler(
-        user.auth.auth_lang_handler,
+        user.auth.auth_user_handler,
         commands=['start'],
         is_auth=False,
         state="*"

@@ -42,21 +42,12 @@ async def show_order(
 
 в другие города мы отправляем через почту 
 Оплата за счет покупателя!'''
-    if user.region == "Russia":
-        info = f'''
-- в городе Москва со склада Ederra осуществляется Яндекс курьером за счет покупателя согласно тарифу на момент отправки заказа;
-- в другие города России осуществляется ТК CDEK со склада в городе Москва за счет покупателя согласно тарифу на момент отправки заказа.'''
-    elif user.region == 'Uzbekistan':
-        info = f'''
-- в городе Ташкент со склада Ederra осуществляется Яндекс курьером за счет покупателя согласно тарифу на момент отправки заказа;
-- в другие города Узбекистана осуществляется ТК CDEK со склада в городе Ташкент за счет покупателя согласно тарифу на момент отправки заказа.'''
-
     text = f'''
 {LocaleManager.get('Ваш заказ', user.lang)}:
 {"".join(info_products)}
 {LocaleManager.get('<b>Итого</b>', user.lang)}: {int(sum_product * price)} {LocaleManager.get(currency, user.lang)}
 
-{LocaleManager.get(f'Для оплаты перейдите по <a href = "{link_pay}">ссылке</a> и оплатите', user.lang)} {int(sum_product * price)} {LocaleManager.get(currency, user.lang)} {LocaleManager.get("paymentsEddera", user.lang)}
+{LocaleManager.get(f'Для оплаты перейдите по <a href = "{link_pay}">ссылке</a> и оплатите', user.lang)} {int(sum_product * price)} {LocaleManager.get(currency, user.lang)}
 {LocaleManager.get('Чек оплаты прикрепить, нажав кнопку "Прикрепить чек" ниже (скриншот чека или pdf)', user.lang)}
 {LocaleManager.get('Важно! Укажите информацию для доставки после прикрепления чека оплаты.', user.lang)}
 
@@ -68,4 +59,4 @@ async def show_order(
 2. {LocaleManager.get('Полный адрес, который отображается на Яндекс карте', user.lang)};
 3. {LocaleManager.get('Телефон для связи', user.lang)};
 '''
-    return text.replace("paymentsEddera", "")
+    return text

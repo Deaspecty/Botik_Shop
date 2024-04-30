@@ -77,8 +77,7 @@ async def auth_user_handler(
         callback_data: dict
 ):
     data = await state.get_data()
-    region = callback_data.get('lang')
-    lang = data.get('lang')
+    lang = "rus"
     await callback.message.delete()
     #await callback.bot.delete_message(callback.from_user.id, data['msg'])
     #phone_number = parse_phone(message.contact.phone_number)
@@ -86,7 +85,6 @@ async def auth_user_handler(
     #user.name = name
     #user.phone_number = phone_number
     user.lang = lang
-    user.region = region
     await user.save(session)
     await callback.message.answer(LocaleManager.get("Вы успешно авторизовались.", user.lang))
     await state.finish()

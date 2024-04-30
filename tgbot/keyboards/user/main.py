@@ -32,7 +32,7 @@ def user_main_btns(lang):
             LocaleManager.get("Корзина", lang),
             # LocaleManager.get("FAQ", lang),
             LocaleManager.get("Контакты", lang),
-            LocaleManager.get("Сменить язык", lang) + " 🇰🇿🇷🇺",
+            # LocaleManager.get("Сменить язык", lang) + " 🇰🇿🇷🇺",
             # LocaleManager.get("Сменить локацию", lang) + " 🇰🇿🇷🇺",
             LocaleManager.get("Сотрудничество", lang)]
     for btn in btns:
@@ -133,8 +133,8 @@ async def get_category(
         shop_cart: dict
 ):
     markup = InlineKeyboardMarkup()
-    btns = {LocaleManager.get("СУМКА ДЛЯ ТЕЛЕФОНА", lang): CategoryCallback.new(
-        category_sub="СУМКА ДЛЯ ТЕЛЕФОНА",
+    btns = {LocaleManager.get("Сумки", lang): CategoryCallback.new(
+        category_sub="Сумка для телефона",
         action="category"
     ), "Bvlgari": CategoryCallback.new(
         category_sub="Bvlgari",
@@ -153,11 +153,6 @@ async def get_category(
     for i, product in enumerate(products):
         if i == 5:
             break
-        if "Ederra Lab 03" in product.name:
-            btns[LocaleManager.get(product.name, lang)] = ProductCallback.new(
-                product_id=product.id,
-                action="product"
-            )
     if shop_cart:
         btns[f'🛒{LocaleManager.get("Корзина", lang)}'] = QuantityCallback.new(
             turn='-',
@@ -347,9 +342,6 @@ async def region_btns(action: str,
     markup = InlineKeyboardMarkup()
     btns = {LocaleManager.get('Казахстан', lang) + " 🇰🇿": LanguageCallback.new(
         lang="Kazakhstan",
-        action=action
-    ), LocaleManager.get('Россия', lang) + " 🇷🇺": LanguageCallback.new(
-        lang="Russia",
         action=action
     )}
 

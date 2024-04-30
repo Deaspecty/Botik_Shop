@@ -63,7 +63,6 @@ class LocaleManager:
         locale_data = cls.data.get(locale)
 
         if (text_en := locale_data.get(text_ru)) is None:
-            logging.info(f"Перевода текста не был найден :( - " + text_ru)
             return text_ru
 
         return text_en
