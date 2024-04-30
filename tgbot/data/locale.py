@@ -6,6 +6,7 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 class Lang:
     RUS = "rus"
+    UZB = "uzb"
     KAZ = "kz"
 
 
