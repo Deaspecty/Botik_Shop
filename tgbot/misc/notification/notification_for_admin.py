@@ -24,7 +24,7 @@ async def generate_admin_notification(
         sum_product += product.price * shop_cart.get(str(product.id))
         #sum_product = [product.price * shop_cart.get(str(product.id)) for product in products]
         info_products.append(f"{shop_cart.get(str(product.id))} x {LocaleManager.get(product.name, admin.lang)} "
-                             f"{int(product.price * shop_cart.get(str(product.id)) * price)} "
+                             f"{int(product.price * shop_cart.get(str(product.id)))} "
                              f"{LocaleManager.get(currency, admin.lang)}\n")
     text = f'''
 {LocaleManager.get('Новый заказ!', admin.lang)}
