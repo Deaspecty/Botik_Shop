@@ -25,9 +25,7 @@ async def start_handler(
         except:
             pass
     await remove(message, 1)
-    text = '''Добро пожаловать в магазин нашей компании
-Для выбора продукции перейдите в Каталог в главном меню ниже
-'''
+    text = '''Добро пожаловать в магазин Botik shop'''
     msg_start = await message.answer(
         text=LocaleManager.get(text, user.lang) + " ⬇️",
         reply_markup=user_main_btns(user.lang)

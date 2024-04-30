@@ -129,21 +129,12 @@ async def get_category(
 ):
     markup = InlineKeyboardMarkup()
     btns = {LocaleManager.get("Сумки", lang): CategoryCallback.new(
-        category_sub="Сумка для телефона",
+        category_sub="Сумка",
         action="category"
-    ), "Bvlgari": CategoryCallback.new(
-        category_sub="Bvlgari",
+    ), "Обувь": CategoryCallback.new(
+        category_sub="Обувь",
         action="category"
-    ), "Miu Miu": CategoryCallback.new(
-        category_sub="Miu Miu",
-        action="category"
-    ),LocaleManager.get("Сандали", lang): CategoryCallback.new(
-        category_sub="Сандали",
-        action="category"
-    ),LocaleManager.get("Кроссовки", lang): CategoryCallback.new(
-        category_sub="Кроссовки",
-        action="category"
-    ),}
+    )}
     products = await get_all_products(session)
     for i, product in enumerate(products):
         if i == 5:
