@@ -10,6 +10,7 @@ async def start_handler(
         message: Message
 ):
     await message.answer(
-        text="Добро пожаловать админ"
+        text="Добро пожаловать админ",
+        reply_markup=user_main_btns("rus")
     )
 
