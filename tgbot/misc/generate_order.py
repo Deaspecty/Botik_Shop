@@ -15,16 +15,8 @@ async def show_order(
     sum_product = 0
     info_products = []
     currency = "тг"
-    link_pay = "https://pay.kaspi.kz/pay/zzkyicl2"
+    link_pay = "https://www.google.kz/?hl=ru"
     price = 1
-    if user.region == 'Russia':
-        currency = '₽'
-        link_pay = "https://www.google.kz/?hl=ru"
-        price = 0.21
-    if user.region == 'Uzbekistan':
-        currency = 'сум'
-        link_pay = "https://www.google.kz/?hl=ru"
-        price = 1
     for i, product in enumerate(products):
         sum_product += product.price * shop_cart.get(str(product.id))
         #sum_product = [product.price * shop_cart[1][i] for i, product in enumerate(products)]

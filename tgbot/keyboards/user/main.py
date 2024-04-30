@@ -61,14 +61,9 @@ async def get_marketplace(lang, region):
             action="back"
         )
     )
-    if region == 'Kazakhstan':
-        markup.add(btn1)
+    markup.add(btn1)
     markup.add(btn2)
     markup.add(btn3)
-    if region == 'Russia':
-        markup.add(btn4)
-    if region == 'Uzbekistan':
-        markup.add(btn5)
     markup.add(btn6)
     return markup
 
