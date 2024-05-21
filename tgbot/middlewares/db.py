@@ -17,7 +17,7 @@ class DbMiddleware(LifetimeControllerMiddleware):
             data['session'] = session
             return
 
-        if not (user := await session.get(User, obj.from_user.id)):
+        if not (user := await User.get_by_id(session, obj.from_user.id)):
             user = User(
                 id=obj.from_user.id,
                 fullname=obj.from_user.full_name

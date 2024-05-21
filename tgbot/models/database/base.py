@@ -23,9 +23,11 @@ class Database:
         self.pool: typing.Optional[sessionmaker] = None
         self.engine: typing.Optional[AsyncEngine] = None
 
-    async def create_pool(self, connection_uri = "postgresql+asyncpg://postgres:postgres@localhost/postgres",
+    async def create_pool(self, connection_uri="postgresql+asyncpg://postgres:postgres@localhost/postgres",
                           drop_table: bool = False):
-        engine = create_async_engine(url=make_url(connection_uri))
+        engine = create_async_engine(url=make_url(connection_uri),
+                                     pool_recycle=3600,
+                                     pool_pre_ping=True)
         self.engine = engine
         if drop_table:
             async with engine.begin() as conn:
@@ -34,5 +36,3 @@ class Database:
             await conn.run_sync(Base.metadata.create_all)
         pool = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False, autoflush=False)
         self.pool = pool
-
-
